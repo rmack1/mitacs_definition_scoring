@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meaning Test Coder</title>
+<style>
+  :root{
+    --bg:#f2f8f3; --panel:#ffffff; --border:#cfe3d2; --text:#1e2b21; --muted:#5c6b60;
+    --accent:#2f9e44; --accent-light:#e6f7ea; --good:#2f9e44; --bad:#e03131; --warn:#e8890c;
+  }
+  *{box-sizing:border-box;}
+  body{
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background:var(--bg); color:var(--text); margin:0; padding:24px;
+    line-height:1.45;
+  }
+  h1{font-size:22px; margin:0 0 4px;}
+  h2{font-size:16px; margin:0 0 4px; border-bottom:1px solid var(--border); padding-bottom:8px;}
+  h3{font-size:14px; margin:16px 0 8px;}
+  .subtitle{color:var(--muted); margin:0 0 20px; font-size:13px;}
+  .wrap{max-width:900px; margin:0 auto;}
+  .panel{background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:18px 20px; margin-bottom:16px;}
+  label{display:block; font-size:13px; font-weight:600; margin-bottom:4px; color:var(--text);}
+  .hint{font-size:12px; color:var(--muted); margin:2px 0 8px;}
+  input[type=text], select{
+    width:100%; padding:8px 10px; border:1px solid var(--border); border-radius:6px;
+    font-size:14px; background:#fff; color:var(--text);
+  }
+  .row{display:flex; gap:16px; flex-wrap:wrap;}
+  .row > div{flex:1; min-width:200px;}
+  button{
+    cursor:pointer; border:1px solid var(--border); background:#fff; color:var(--text);
+    padding:7px 12px; border-radius:6px; font-size:13px; font-weight:600;
+  }
+  button:hover{border-color:var(--accent);}
+  button:disabled{opacity:0.4; cursor:not-allowed;}
+  button.primary{background:var(--accent); color:#fff; border-color:var(--accent);}
+  button.primary:hover{opacity:0.92;}
+  button.danger{color:var(--bad); border-color:var(--bad);}
+  button.small{padding:4px 9px; font-size:12px;}
+  .btn-group{display:flex; gap:8px; flex-wrap:wrap; margin-top:6px;}
+
+  .phase-btn{padding:9px 16px; font-size:14px;}
+  .phase-btn.active{background:var(--accent); color:#fff; border-color:var(--accent);}
+
+  .checklist{display:flex; flex-wrap:wrap; gap:8px;}
+  .checklist label.chip{
+    display:flex; align-items:center; gap:6px; border:1px solid var(--border); border-radius:20px;
+    padding:6px 12px; font-size:13px; font-weight:500; cursor:pointer; background:#fafbfc;
+  }
+  .checklist label.chip.checked{background:var(--accent-light); border-color:var(--accent);}
+  .checklist input{margin:0;}
+  .count-badge{font-size:12px; font-weight:700; padding:2px 8px; border-radius:10px; background:var(--border);}
+  .count-badge.ok{background:#d3f9d8; color:#2b8a3e;}
+  .count-badge.over{background:#ffe3e3; color:#c92a2a;}
+
+  .word-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:10px;}
+  .word-tile{border:1px solid var(--border); border-radius:8px; padding:10px 12px; background:#fafbfa;}
+  .word-tile.done{background:var(--accent-light); border-color:var(--accent);}
+  .word-tile.expanded{border-color:var(--accent); box-shadow:0 0 0 2px var(--accent-light);}
+  .tile-header{display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; gap:8px;}
+  .tile-word{font-weight:700;}
+  .tile-actions{display:flex; gap:6px;}
+  .tile-result{font-size:12px; color:var(--muted); margin-bottom:6px;}
+  .tile-extra{border-top:1px dashed var(--border); margin-top:8px; padding-top:8px; font-size:13px;}
+  .tile-extra label.inline{display:flex; align-items:center; gap:6px; font-weight:500; margin-bottom:6px; cursor:pointer;}
+  .tile-extra .pvt-choices{display:flex; flex-wrap:wrap; gap:8px; margin:4px 0 10px;}
+  .tile-extra .pvt-choices label{display:inline-flex; align-items:center; gap:4px; font-weight:500; font-size:13px; cursor:pointer; white-space:nowrap;}
+  .tile-extra .pvt-subgroup-label{font-size:12px; font-weight:700; color:var(--muted); margin:6px 0 4px;}
+
+  .rubric-row{border:1px solid var(--border); border-radius:6px; padding:8px 10px; margin-bottom:6px; background:#fff;}
+  .rubric-row .rubric-head{display:flex; justify-content:space-between; align-items:center; gap:8px;}
+  .rubric-score-label{font-weight:700; min-width:60px;}
+  .rubric-def{font-size:12px; color:var(--text); margin:4px 0 2px;}
+  .rubric-example{font-size:12px; color:var(--muted); font-style:italic;}
+  .placeholder-flag{color:var(--warn); font-weight:700;}
+
+  .status{font-size:13px; padding:8px 10px; border-radius:6px; margin-bottom:14px;}
+  .status.ok{background:#d3f9d8; color:#2b8a3e;}
+  .status.none{background:#fff3bf; color:#997404;}
+
+  table{width:100%; border-collapse:collapse; font-size:12px; margin-top:10px;}
+  table th, table td{border:1px solid var(--border); padding:4px 6px; text-align:left;}
+  table th{background:#f1f3f5;}
+  details summary{cursor:pointer; font-weight:600; font-size:13px; margin-bottom:6px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Meaning Test Coder</h1>
+  <p class="subtitle">Data is saved automatically in this browser as you go. Export CSV / JSON backups regularly.</p>
+
+  <!-- PARTICIPANT PANEL -->
+  <div class="panel">
+    <h2>Participant</h2>
+    <div class="row">
+      <div>
+        <label>Participant ID</label>
+        <input type="text" id="participantId" placeholder="e.g. P001">
+      </div>
+    </div>
+    <div class="btn-group">
+      <button class="primary" id="loadBtn">Load / start participant</button>
+      <button class="danger" id="clearBtn">Clear this participant's data</button>
+    </div>
+    <div id="statusBox" class="status none" style="margin-top:12px;">No participant loaded.</div>
+  </div>
+
+  <div id="formArea" style="display:none;">
+
+    <!-- TEST PHASE SELECTOR -->
+    <div class="panel">
+      <h2>Which test are you scoring?</h2>
+      <div class="btn-group" id="phaseSelector">
+        <button class="phase-btn" data-phase="pre">Pre-Meaning Test</button>
+        <button class="phase-btn" data-phase="intermediate">Intermediate Test</button>
+        <button class="phase-btn" data-phase="post">Post-Meaning Test</button>
+      </div>
+    </div>
+
+    <!-- PRE-MEANING TEST -->
+    <div class="panel" id="preMeaningPanel">
+      <h2>Pre-Meaning Test</h2>
+      <p class="hint">Click a word to see the rubric (scores 0–3 with definitions/examples), then select the score that applies.</p>
+      <div id="preMeaningGrid"></div>
+    </div>
+
+    <div id="intermediatePanel">
+      <!-- INTERMEDIATE TEST - STORY 1 -->
+      <div class="panel">
+        <h2>Intermediate Test — Story 1</h2>
+        <div class="row" style="margin-bottom:14px;">
+          <div>
+            <label>Condition</label>
+            <select id="story1Condition">
+              <option value="">-- select --</option>
+              <option value="high_preference">High Preference</option>
+              <option value="control">Control</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label>Target words for Story 1 <span class="count-badge" id="story1CountBadge">0 / 4</span></label>
+          <div class="checklist" id="story1WordPicker"></div>
+        </div>
+        <div id="story1Grid"></div>
+      </div>
+
+      <!-- INTERMEDIATE TEST - STORY 2 -->
+      <div class="panel">
+        <h2>Intermediate Test — Story 2</h2>
+        <div class="row" style="margin-bottom:14px;">
+          <div>
+            <label>Condition</label>
+            <select id="story2Condition">
+              <option value="">-- select --</option>
+              <option value="high_preference">High Preference</option>
+              <option value="control">Control</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label>Target words for Story 2 <span class="count-badge" id="story2CountBadge">0 / 4</span></label>
+          <div class="checklist" id="story2WordPicker"></div>
+        </div>
+        <div id="story2Grid"></div>
+      </div>
+    </div>
+
+    <!-- POST-MEANING TEST -->
+    <div class="panel" id="postMeaningPanel">
+      <h2>Post-Meaning Test</h2>
+      <p class="hint">Click a word to score it against the rubric. Also mark whether the word was seen in the PVT, and if so, which picture (1–4) was selected.</p>
+      <div id="postMeaningGrid"></div>
+    </div>
+
+    <!-- REVIEW -->
+    <div class="panel">
+      <h2>Review this participant's data</h2>
+      <details>
+        <summary>Show summary table</summary>
+        <div id="reviewTable"></div>
+      </details>
+    </div>
+
+  </div>
+
+  <!-- SAVED PARTICIPANTS -->
+  <div class="panel">
+    <h2>Participants saved in this browser</h2>
+    <p class="hint">If a participant you expect isn't listed here, you're likely viewing this tool from a different browser/file copy than the one you entered that data in. Always use the same published link (GitHub Pages URL) to keep everything in one place.</p>
+    <div id="savedParticipantsBox"></div>
+  </div>
+
+  <!-- EXPORT PANEL -->
+  <div class="panel">
+    <h2>Export</h2>
+    <div class="btn-group">
+      <button id="exportCurrentBtn">Export this participant (CSV)</button>
+      <button id="exportAllBtn">Export ALL participants (CSV)</button>
+      <button id="downloadBackupBtn">Download full backup (JSON)</button>
+      <label class="small" style="display:inline-block;">
+        <input type="file" id="restoreFile" accept="application/json" style="display:none;">
+        <button id="restoreBtn" type="button">Restore from backup</button>
+      </label>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const WORDS = ["Sedan","Hazardous","Incandescent","Weary","Dejected","Lugubrious","Depleted","Submerge","Ascend","Apparel","Torrent","Peruse"];
+const ALPHA_WORDS = [...WORDS].sort((a,b) => a.localeCompare(b));
+const STORAGE_KEY = "meaning_test_coder_v1";
+
+// ============================================================================
+// SCORING RUBRIC — definitions and examples for each word, scores 0–3.
+// ============================================================================
+const RUBRIC = {
+  "Apparel": [
+    { score: 0, definition: "Wrong definition", example: "" },
+    { score: 1, definition: "Gives an example of the word used correctly, or describes the word abstractly; did not say \"clothes\" but contains other examples", example: "" },
+    { score: 2, definition: "Contains 2 of 3 components: synonyms of \"clothes\"", example: "" },
+    { score: 3, definition: "Clothes + shop", example: "Clothes being sold in a shop" }
+  ],
+  "Ascend": [
+    { score: 0, definition: "Wrong definition", example: "" },
+    { score: 1, definition: "Gives an example of the word used correctly, or describes the word abstractly", example: "Climbing, moving, stairs" },
+    { score: 2, definition: "No specific criteria defined for this score", example: "" },
+    { score: 3, definition: "Go + up", example: "" }
+  ],
+  "Dejected": [
+    { score: 0, definition: "Wrong definition", example: "" },
+    { score: 1, definition: "Gives an example of the word used correctly, or describes the word abstractly", example: "A feeling" },
+    { score: 2, definition: "Contains either \"unhappy\" OR \"disappointed\" (or a synonym)", example: "" },
+    { score: 3, definition: "\"Unhappy\" AND \"disappointed\"", example: "" }
+  ],
+  "Depleted": [
+    { score: 0, definition: "Wrong definition", example: "" },
+    { score: 1, definition: "Gives an example of the word used correctly, or describes the word abstractly", example: "Less" },
+    { score: 2, definition: "Reduce/almost + up/amount (shows a process of reduction without noting a large amount)", example: "Run out, reduce, almost up" },
+    { score: 3, definition: "Reduce + large amount", example: "" }
+  ],
+  "Hazardous": [
+    { score: 0, definition: "Wrong definition", example: "" },
+    { score: 1, definition: "Gives an example of the word used correctly, or describes the word abstractly", example: "Scary" },
+    { score: 2, definition: "No specific criteria defined for this score", example: "" },
+    { score: 3, definition: "Dangerous", example: "" }
+  ],
+  "Incandescent": [
+    { score: 0, definition: "Wrong definition", example: "" },
+    { score: 1, definition: "Gives an example of the word used correctly, or describes the word abstractly", example: "Like the sun; colorful; shining" },
+    { score: 2, definition: "Light; a lot of light", example: "" },
+    { score: 3, definition: "Very + bright", example: "" }
+  ],
+  "Lugubrious": [
+    { score: 0, definition: "Wrong definition", example: "" },
+    { score: 1, definition: "Gives an example of the word used correctly, or describes the word abstractly", example: "A feeling" },
+    { score: 2, definition: "Contains either \"sad\" OR \"serious\"", example: "" },
+    { score: 3, definition: "\"Sad\" + \"serious\"", example: "" }
+  ],
+  "Peruse": [
+    { score: 0, definition: "Wrong definition", example: "" },
+    { score: 1, definition: "Gives an example of the word used correctly, or describes the word abstractly; \"look through something\"", example: "\"A book\"; \"look at something\"" },
+    { score: 2, definition: "Contains \"read\" but not \"carefully\"", example: "\"Reading\"" },
+    { score: 3, definition: "Read + carefully", example: "" }
+  ],
+  "Sedan": [
+    { score: 0, definition: "Wrong definition", example: "" },
+    { score: 1, definition: "Gives an example of the word used correctly, or describes the word abstractly: car", example: "A vehicle; something you drive" },
+    { score: 2, definition: "Correct specifics to car", example: "Brand of car; type of car; special car; a car" },
+    { score: 3, definition: "Car + 4 wheels OR doors + space at the back/boot/trunk", example: "" }
+  ],
+  "Submerge": [
+    { score: 0, definition: "Wrong definition", example: "" },
+    { score: 1, definition: "Gives an example of the word used correctly, or describes the word abstractly", example: "Like a submarine; getting wet; sinking" },
+    { score: 2, definition: "Go/make + under water", example: "Putting something in water" },
+    { score: 3, definition: "Go/make + under water + surface (something to indicate \"completely\")", example: "Going under the water completely/until you are covered in water" }
+  ],
+  "Torrent": [
+    { score: 0, definition: "Wrong definition", example: "" },
+    { score: 1, definition: "Gives an example of the word used correctly, or describes the word abstractly", example: "Water, moving fast" },
+    { score: 2, definition: "Water + large amount OR flowing/moving (quickly) (missing a component)", example: "" },
+    { score: 3, definition: "Large amount + water + moving quickly", example: "" }
+  ],
+  "Weary": [
+    { score: 0, definition: "Wrong definition", example: "" },
+    { score: 1, definition: "Gives an example of the word used correctly, or describes the word abstractly", example: "A feeling" },
+    { score: 2, definition: "Exhausted; low energy", example: "" },
+    { score: 3, definition: "(Very) + tired", example: "" }
+  ]
+};
+
+// UI-only state (not persisted): which word tile is currently expanded per section
+const expanded = { pre: null, story1: null, story2: null, post: null };
+
+// UI-only state: which test phase is currently selected for scoring
+let currentPhase = "pre"; // "pre" | "intermediate" | "post"
+
+function loadAllData(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  }catch(e){ return {}; }
+}
+function saveAllData(all){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+}
+function blankParticipant(){
+  return {
+    preMeaning: [],   // [{word, score}]
+    intermediate: {
+      story1: { condition: "", targetWords: [], entries: {} },  // entries[word] = {score, remembered}
+      story2: { condition: "", targetWords: [], entries: {} }
+    },
+    postMeaning: []    // [{word, score, seenInPVT, pvtChoice, pvtAccuracy}]
+  };
+}
+
+let allData = loadAllData();
+let currentId = null;
+let current = null;
+
+const $ = id => document.getElementById(id);
+
+function setStatus(msg, ok){
+  const box = $("statusBox");
+  box.textContent = msg;
+  box.className = "status " + (ok ? "ok" : "none");
+}
+
+function saveCurrent(){
+  if(!currentId) return;
+  allData[currentId] = current;
+  saveAllData(allData);
+}
+
+function loadParticipant(){
+  const id = $("participantId").value.trim();
+  if(!id){ alert("Enter a Participant ID first."); return; }
+  currentId = id;
+  if(allData[id]){
+    current = allData[id];
+    setStatus(`Loaded existing data for "${id}".`, true);
+  }else{
+    current = blankParticipant();
+    allData[id] = current;
+    saveAllData(allData);
+    setStatus(`Started new record for "${id}".`, true);
+  }
+  $("formArea").style.display = "block";
+  expanded.pre = null; expanded.story1 = null; expanded.story2 = null; expanded.post = null;
+  $("story1Condition").value = current.intermediate.story1.condition || "";
+  $("story2Condition").value = current.intermediate.story2.condition || "";
+  renderAll();
+}
+
+function clearParticipant(){
+  if(!currentId){ alert("Load a participant first."); return; }
+  if(!confirm(`Clear all data for participant "${currentId}"? This cannot be undone.`)) return;
+  current = blankParticipant();
+  allData[currentId] = current;
+  saveAllData(allData);
+  $("story1Condition").value = "";
+  $("story2Condition").value = "";
+  renderAll();
+  setStatus(`Cleared data for "${currentId}".`, true);
+}
+
+// ---- Generic rubric tile renderer ----
+// entry: {score, ...extraFields} or undefined
+// onSelectScore(word, score), onRemove(word) optional
+// extraContentFn(word, entry, refreshFn) optional -> returns a DOM node appended below the score summary/rubric
+function renderRubricTile(word, entry, expandedKeyGetter, expandedKeySetter, onSelectScore, onRemove, extraContentFn, refreshFn){
+  const isExpanded = expandedKeyGetter() === word;
+  const tile = document.createElement("div");
+  tile.className = "word-tile" + (entry ? " done" : "") + (isExpanded ? " expanded" : "");
+
+  const header = document.createElement("div");
+  header.className = "tile-header";
+  const nameEl = document.createElement("span");
+  nameEl.className = "tile-word";
+  nameEl.textContent = word;
+  header.appendChild(nameEl);
+
+  const actions = document.createElement("div");
+  actions.className = "tile-actions";
+
+  if(isExpanded){
+    const cancelBtn = document.createElement("button");
+    cancelBtn.className = "small";
+    cancelBtn.textContent = "Cancel";
+    cancelBtn.onclick = () => { expandedKeySetter(null); refreshFn(); };
+    actions.appendChild(cancelBtn);
+  } else {
+    const scoreBtn = document.createElement("button");
+    scoreBtn.className = "small";
+    scoreBtn.textContent = entry ? "Edit score" : "Score this word";
+    scoreBtn.onclick = () => { expandedKeySetter(word); refreshFn(); };
+    actions.appendChild(scoreBtn);
+  }
+
+  if(entry && onRemove){
+    const removeBtn = document.createElement("button");
+    removeBtn.className = "small danger";
+    removeBtn.textContent = "Remove score";
+    removeBtn.onclick = () => onRemove(word);
+    actions.appendChild(removeBtn);
+  }
+
+  header.appendChild(actions);
+  tile.appendChild(header);
+
+  if(entry){
+    const resultEl = document.createElement("div");
+    resultEl.className = "tile-result";
+    resultEl.textContent = `Score: ${entry.score}`;
+    tile.appendChild(resultEl);
+  } else if(!isExpanded){
+    const resultEl = document.createElement("div");
+    resultEl.className = "tile-result";
+    resultEl.textContent = "Not yet scored";
+    tile.appendChild(resultEl);
+  }
+
+  if(isExpanded){
+    const rubricWrap = document.createElement("div");
+    RUBRIC[word].forEach(level => {
+      const row = document.createElement("div");
+      row.className = "rubric-row";
+      const head = document.createElement("div");
+      head.className = "rubric-head";
+      const label = document.createElement("span");
+      label.className = "rubric-score-label";
+      label.textContent = `Score ${level.score}`;
+      const selectBtn = document.createElement("button");
+      selectBtn.className = "small";
+      selectBtn.textContent = (entry && entry.score === level.score) ? "Selected ✓" : "Select";
+      selectBtn.onclick = () => onSelectScore(word, level.score);
+      head.appendChild(label);
+      head.appendChild(selectBtn);
+      row.appendChild(head);
+
+      const defEl = document.createElement("div");
+      defEl.className = "rubric-def";
+      defEl.textContent = level.definition;
+      row.appendChild(defEl);
+
+      if(level.example){
+        const exEl = document.createElement("div");
+        exEl.className = "rubric-example";
+        exEl.textContent = level.example;
+        row.appendChild(exEl);
+      }
+
+      rubricWrap.appendChild(row);
+    });
+    tile.appendChild(rubricWrap);
+  }
+
+  if(extraContentFn){
+    const extra = extraContentFn(word, entry, refreshFn);
+    if(extra) tile.appendChild(extra);
+  }
+
+  return tile;
+}
+
+// ---- Pre-Meaning Test ----
+function renderPreMeaning(){
+  const grid = $("preMeaningGrid");
+  grid.className = "word-grid";
+  grid.innerHTML = "";
+  ALPHA_WORDS.forEach(word => {
+    const entry = current.preMeaning.find(e => e.word === word);
+    const tile = renderRubricTile(
+      word, entry,
+      () => expanded.pre, v => expanded.pre = v,
+      (w, score) => {
+        const idx = current.preMeaning.findIndex(e => e.word === w);
+        const newEntry = { word: w, score };
+        if(idx >= 0) current.preMeaning[idx] = newEntry; else current.preMeaning.push(newEntry);
+        expanded.pre = null;
+        saveCurrent(); renderAll();
+      },
+      (w) => {
+        current.preMeaning = current.preMeaning.filter(e => e.word !== w);
+        expanded.pre = null;
+        saveCurrent(); renderAll();
+      },
+      null,
+      renderAll
+    );
+    grid.appendChild(tile);
+  });
+}
+
+// ---- Post-Meaning Test ----
+function renderPostMeaning(){
+  const grid = $("postMeaningGrid");
+  grid.className = "word-grid";
+  grid.innerHTML = "";
+  ALPHA_WORDS.forEach(word => {
+    const entry = current.postMeaning.find(e => e.word === word);
+    const tile = renderRubricTile(
+      word, entry,
+      () => expanded.post, v => expanded.post = v,
+      (w, score) => {
+        const idx = current.postMeaning.findIndex(e => e.word === w);
+        if(idx >= 0){
+          current.postMeaning[idx].score = score;
+        } else {
+          current.postMeaning.push({ word: w, score, seenInPVT: false, pvtChoice: null, pvtAccuracy: null });
+        }
+        expanded.post = null;
+        saveCurrent(); renderAll();
+      },
+      (w) => {
+        current.postMeaning = current.postMeaning.filter(e => e.word !== w);
+        expanded.post = null;
+        saveCurrent(); renderAll();
+      },
+      (w, ent, refresh) => {
+        // Ensure an entry exists so PVT info can be tracked even before a rubric score is chosen
+        const wrap = document.createElement("div");
+        wrap.className = "tile-extra";
+
+        const pvtLabel = document.createElement("label");
+        pvtLabel.className = "inline";
+        const pvtCheckbox = document.createElement("input");
+        pvtCheckbox.type = "checkbox";
+        pvtCheckbox.checked = !!(ent && ent.seenInPVT);
+        pvtCheckbox.onchange = () => {
+          let idx = current.postMeaning.findIndex(e => e.word === w);
+          if(idx < 0){
+            current.postMeaning.push({ word: w, score: null, seenInPVT: false, pvtChoice: null, pvtAccuracy: null });
+            idx = current.postMeaning.length - 1;
+          }
+          current.postMeaning[idx].seenInPVT = pvtCheckbox.checked;
+          if(!pvtCheckbox.checked){
+            current.postMeaning[idx].pvtChoice = null;
+            current.postMeaning[idx].pvtAccuracy = null;
+          }
+          saveCurrent(); refresh();
+        };
+        pvtLabel.appendChild(pvtCheckbox);
+        pvtLabel.appendChild(document.createTextNode("Seen in PVT"));
+        wrap.appendChild(pvtLabel);
+
+        if(ent && ent.seenInPVT){
+          const choiceLabel = document.createElement("div");
+          choiceLabel.className = "pvt-subgroup-label";
+          choiceLabel.textContent = "Picture selected";
+          wrap.appendChild(choiceLabel);
+
+          const choiceWrap = document.createElement("div");
+          choiceWrap.className = "pvt-choices";
+          [1,2,3,4].forEach(n => {
+            const l = document.createElement("label");
+            const r = document.createElement("input");
+            r.type = "radio";
+            r.name = `pvt_choice_${w}`;
+            r.checked = ent.pvtChoice === n;
+            r.onchange = () => {
+              const idx = current.postMeaning.findIndex(e => e.word === w);
+              current.postMeaning[idx].pvtChoice = n;
+              saveCurrent(); refresh();
+            };
+            l.appendChild(r);
+            l.appendChild(document.createTextNode(`Pic ${n}`));
+            choiceWrap.appendChild(l);
+          });
+          wrap.appendChild(choiceWrap);
+
+          const accLabel = document.createElement("div");
+          accLabel.className = "pvt-subgroup-label";
+          accLabel.textContent = "Accuracy";
+          wrap.appendChild(accLabel);
+
+          const accWrap = document.createElement("div");
+          accWrap.className = "pvt-choices";
+          [{v:1,label:"1 — Correct"},{v:0,label:"0 — Incorrect"}].forEach(opt => {
+            const l = document.createElement("label");
+            const r = document.createElement("input");
+            r.type = "radio";
+            r.name = `pvt_accuracy_${w}`;
+            r.checked = ent.pvtAccuracy === opt.v;
+            r.onchange = () => {
+              const idx = current.postMeaning.findIndex(e => e.word === w);
+              current.postMeaning[idx].pvtAccuracy = opt.v;
+              saveCurrent(); refresh();
+            };
+            l.appendChild(r);
+            l.appendChild(document.createTextNode(opt.label));
+            accWrap.appendChild(l);
+          });
+          wrap.appendChild(accWrap);
+        }
+
+        return wrap;
+      },
+      renderAll
+    );
+    grid.appendChild(tile);
+  });
+}
+
+// ---- Intermediate Test (Story 1 / Story 2) ----
+function renderStoryWordPicker(storyKey, listElId, countElId){
+  const listEl = $(listElId);
+  listEl.innerHTML = "";
+  const selected = current.intermediate[storyKey].targetWords;
+  ALPHA_WORDS.forEach(word => {
+    const checked = selected.includes(word);
+    const label = document.createElement("label");
+    label.className = "chip" + (checked ? " checked" : "");
+    label.innerHTML = `<input type="checkbox" ${checked ? "checked" : ""}> ${word}`;
+    const input = label.querySelector("input");
+    input.disabled = !checked && selected.length >= 4;
+    input.onchange = () => toggleStoryWord(storyKey, word);
+    listEl.appendChild(label);
+  });
+  const countEl = $(countElId);
+  countEl.textContent = `${selected.length} / 4`;
+  countEl.className = "count-badge " + (selected.length === 4 ? "ok" : (selected.length > 4 ? "over" : ""));
+}
+
+function toggleStoryWord(storyKey, word){
+  const story = current.intermediate[storyKey];
+  const idx = story.targetWords.indexOf(word);
+  if(idx >= 0){
+    story.targetWords.splice(idx, 1);
+    delete story.entries[word];
+  } else {
+    if(story.targetWords.length >= 4) return;
+    story.targetWords.push(word);
+  }
+  saveCurrent();
+  renderAll();
+}
+
+function renderStoryGrid(storyKey, gridElId){
+  const grid = $(gridElId);
+  grid.className = "word-grid";
+  grid.innerHTML = "";
+  const story = current.intermediate[storyKey];
+  const words = [...story.targetWords].sort((a,b) => a.localeCompare(b));
+  if(words.length === 0){
+    grid.innerHTML = "<p class='hint'>Select up to 4 target words above to begin scoring.</p>";
+    return;
+  }
+  words.forEach(word => {
+    const entry = story.entries[word];
+    const tile = renderRubricTile(
+      word, entry,
+      () => expanded[storyKey], v => expanded[storyKey] = v,
+      (w, score) => {
+        if(!story.entries[w]) story.entries[w] = { score: null, remembered: false };
+        story.entries[w].score = score;
+        expanded[storyKey] = null;
+        saveCurrent(); renderAll();
+      },
+      (w) => {
+        delete story.entries[w];
+        expanded[storyKey] = null;
+        saveCurrent(); renderAll();
+      },
+      (w, ent, refresh) => {
+        const wrap = document.createElement("div");
+        wrap.className = "tile-extra";
+        const label = document.createElement("label");
+        label.className = "inline";
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = !!(ent && ent.remembered);
+        checkbox.onchange = () => {
+          if(!story.entries[w]) story.entries[w] = { score: null, remembered: false };
+          story.entries[w].remembered = checkbox.checked;
+          saveCurrent(); refresh();
+        };
+        label.appendChild(checkbox);
+        label.appendChild(document.createTextNode("Remembered target word from story"));
+        wrap.appendChild(label);
+        return wrap;
+      },
+      renderAll
+    );
+    grid.appendChild(tile);
+  });
+}
+
+// ---- Review ----
+function renderReview(){
+  const rows = [["Field", "Value"]];
+  rows.push(["Participant ID", currentId]);
+  rows.push(["Pre-Meaning scores", current.preMeaning.map(e=>`${e.word}(${e.score})`).join(", ")]);
+  rows.push(["Story 1 target words", current.intermediate.story1.targetWords.join(", ")]);
+  rows.push(["Story 1 scores", Object.entries(current.intermediate.story1.entries).map(([w,e])=>`${w}: score=${e.score}, remembered=${e.remembered}`).join("; ")]);
+  rows.push(["Story 2 target words", current.intermediate.story2.targetWords.join(", ")]);
+  rows.push(["Story 2 scores", Object.entries(current.intermediate.story2.entries).map(([w,e])=>`${w}: score=${e.score}, remembered=${e.remembered}`).join("; ")]);
+  rows.push(["Post-Meaning scores", current.postMeaning.map(e=>`${e.word}: score=${e.score}, seenInPVT=${e.seenInPVT}, pvtChoice=${e.pvtChoice ?? ""}`).join("; ")]);
+
+  const table = document.createElement("table");
+  rows.forEach((r, i) => {
+    const tr = document.createElement("tr");
+    r.forEach(c => {
+      const cell = document.createElement(i === 0 ? "th" : "td");
+      cell.textContent = c;
+      tr.appendChild(cell);
+    });
+    table.appendChild(tr);
+  });
+  $("reviewTable").innerHTML = "";
+  $("reviewTable").appendChild(table);
+}
+
+// ---- Saved participants ----
+function csvEscapeHtml(s){
+  const div = document.createElement("div");
+  div.textContent = s;
+  return div.innerHTML;
+}
+function renderSavedParticipants(){
+  const box = $("savedParticipantsBox");
+  const ids = Object.keys(allData);
+  if(ids.length === 0){
+    box.innerHTML = "<em>No participants saved yet.</em>";
+    return;
+  }
+  box.innerHTML = `<p style="margin:0 0 8px;"><strong>${ids.length}</strong> participant(s) saved: ${ids.map(id => csvEscapeHtml(id)).join(", ")}</p>`;
+}
+
+function renderPhaseSelector(){
+  document.querySelectorAll(".phase-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.phase === currentPhase);
+  });
+  $("preMeaningPanel").style.display = currentPhase === "pre" ? "block" : "none";
+  $("intermediatePanel").style.display = currentPhase === "intermediate" ? "block" : "none";
+  $("postMeaningPanel").style.display = currentPhase === "post" ? "block" : "none";
+}
+
+document.querySelectorAll(".phase-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    currentPhase = btn.dataset.phase;
+    renderPhaseSelector();
+  });
+});
+
+function renderAll(){
+  renderSavedParticipants();
+  if(!current) return;
+  renderPhaseSelector();
+  renderPreMeaning();
+  renderStoryWordPicker("story1", "story1WordPicker", "story1CountBadge");
+  renderStoryGrid("story1", "story1Grid");
+  renderStoryWordPicker("story2", "story2WordPicker", "story2CountBadge");
+  renderStoryGrid("story2", "story2Grid");
+  renderPostMeaning();
+  renderReview();
+}
+
+renderSavedParticipants();
+
+$("loadBtn").addEventListener("click", loadParticipant);
+$("clearBtn").addEventListener("click", clearParticipant);
+$("story1Condition").addEventListener("change", () => {
+  if(!current) return;
+  current.intermediate.story1.condition = $("story1Condition").value;
+  saveCurrent();
+});
+$("story2Condition").addEventListener("change", () => {
+  if(!current) return;
+  current.intermediate.story2.condition = $("story2Condition").value;
+  saveCurrent();
+});
+
+// ---- CSV export ----
+function csvEscape(val){
+  if(val === undefined || val === null) return "";
+  const s = String(val);
+  if(s.includes(",") || s.includes('"') || s.includes("\n")){
+    return '"' + s.replace(/"/g, '""') + '"';
+  }
+  return s;
+}
+
+function participantToLongRows(id, data){
+  const rows = [];
+
+  // Map each word to whichever story's condition it belongs to (blank if it's not
+  // a target word of either story), so condition carries across all sessions for that word.
+  const conditionMap = {};
+  WORDS.forEach(w => conditionMap[w] = "");
+  ["story1","story2"].forEach(storyKey => {
+    const story = data.intermediate[storyKey];
+    const cond = story.condition || "";
+    story.targetWords.forEach(w => { conditionMap[w] = cond; });
+  });
+
+  // Pre-Meaning: one "definition" row per word
+  WORDS.forEach(w => {
+    const entry = data.preMeaning.find(e => e.word === w);
+    rows.push({
+      participant_id: id, word: w, session: "pre", condition: conditionMap[w],
+      question_type: "definition", value: entry ? entry.score : ""
+    });
+  });
+
+  // Immediate (chapter test): "definition" + "remembered" rows for each story's target words
+  ["story1","story2"].forEach(storyKey => {
+    const story = data.intermediate[storyKey];
+    const cond = story.condition || "";
+    story.targetWords.forEach(w => {
+      const entry = story.entries[w] || {};
+      rows.push({
+        participant_id: id, word: w, session: "immediate", condition: cond,
+        question_type: "definition", value: entry.score !== undefined && entry.score !== null ? entry.score : ""
+      });
+      rows.push({
+        participant_id: id, word: w, session: "immediate", condition: cond,
+        question_type: "remembered", value: entry.remembered === undefined ? "" : (entry.remembered ? 1 : 0)
+      });
+    });
+  });
+
+  // Post-Meaning: "definition" row for every word, plus "pvt_choice"/"pvt_accuracy" rows
+  // only for words actually shown in the PVT
+  WORDS.forEach(w => {
+    const entry = data.postMeaning.find(e => e.word === w);
+    const cond = conditionMap[w];
+    rows.push({
+      participant_id: id, word: w, session: "post", condition: cond,
+      question_type: "definition", value: entry && entry.score !== null && entry.score !== undefined ? entry.score : ""
+    });
+    if(entry && entry.seenInPVT){
+      rows.push({
+        participant_id: id, word: w, session: "post", condition: cond,
+        question_type: "pvt_choice", value: entry.pvtChoice ?? ""
+      });
+      rows.push({
+        participant_id: id, word: w, session: "post", condition: cond,
+        question_type: "pvt_accuracy", value: entry.pvtAccuracy !== null && entry.pvtAccuracy !== undefined ? entry.pvtAccuracy : ""
+      });
+    }
+  });
+
+  return rows;
+}
+
+function rowsToCsv(rows){
+  if(rows.length === 0) return "";
+  const headers = Object.keys(rows[0]);
+  const lines = [headers.map(csvEscape).join(",")];
+  rows.forEach(r => {
+    lines.push(headers.map(h => csvEscape(r[h])).join(","));
+  });
+  return lines.join("\n");
+}
+
+function downloadText(filename, text, mime){
+  const blob = new Blob([text], {type: mime || "text/plain"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+$("exportCurrentBtn").addEventListener("click", () => {
+  if(!currentId){ alert("Load a participant first."); return; }
+  const rows = participantToLongRows(currentId, current);
+  const csv = rowsToCsv(rows);
+  downloadText(`${currentId}_meaning_data.csv`, csv, "text/csv");
+});
+
+$("exportAllBtn").addEventListener("click", () => {
+  const ids = Object.keys(allData);
+  if(ids.length === 0){ alert("No participant data saved yet."); return; }
+  const rows = ids.flatMap(id => participantToLongRows(id, allData[id]));
+  const csv = rowsToCsv(rows);
+  downloadText("all_participants_meaning_data.csv", csv, "text/csv");
+});
+
+$("downloadBackupBtn").addEventListener("click", () => {
+  const json = JSON.stringify(allData, null, 2);
+  downloadText(`meaning_test_coder_backup_${Date.now()}.json`, json, "application/json");
+});
+
+$("restoreBtn").addEventListener("click", () => $("restoreFile").click());
+$("restoreFile").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (evt) => {
+    try{
+      const restored = JSON.parse(evt.target.result);
+      if(!confirm("Restore from backup will merge into existing browser data (existing participants with the same ID will be overwritten). Continue?")) return;
+      allData = Object.assign({}, allData, restored);
+      saveAllData(allData);
+      alert("Restore complete.");
+      if(currentId && allData[currentId]){
+        current = allData[currentId];
+      }
+      renderAll();
+    }catch(err){
+      alert("Could not read that file as valid JSON backup.");
+    }
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>
