@@ -251,9 +251,9 @@ const RUBRIC = {
   ],
   "Incandescent": [
     { score: 0, definition: "Wrong definition", example: "" },
-    { score: 1, definition: "Gives an example of the word used correctly, or describes the word abstractly", example: "Like the sun; colorful; shining" },
-    { score: 2, definition: "Light; a lot of light", example: "" },
-    { score: 3, definition: "Very + bright", example: "" }
+    { score: 1, definition: "Colorful, like the sun", example: "" },
+    { score: 2, definition: "Shining, glowing, luminous, light", example: "" },
+    { score: 3, definition: "Bright", example: "" }
   ],
   "Lugubrious": [
     { score: 0, definition: "Wrong definition", example: "" },
@@ -276,8 +276,8 @@ const RUBRIC = {
   "Submerge": [
     { score: 0, definition: "Wrong definition", example: "" },
     { score: 1, definition: "Gives an example of the word used correctly, or describes the word abstractly", example: "Like a submarine; getting wet; sinking" },
-    { score: 2, definition: "Go/make + under water", example: "Putting something in water" },
-    { score: 3, definition: "Go/make + under water + surface (something to indicate \"completely\")", example: "Going under the water completely/until you are covered in water" }
+    { score: 2, definition: "Going into water, in water, under water", example: "" },
+    { score: 3, definition: "Action + under + water", example: "" }
   ],
   "Torrent": [
     { score: 0, definition: "Wrong definition", example: "" },
@@ -291,6 +291,15 @@ const RUBRIC = {
     { score: 2, definition: "Exhausted; low energy", example: "" },
     { score: 3, definition: "(Very) + tired", example: "" }
   ]
+};
+
+// ============================================================================
+// PVT ANSWER KEY — the correct picture number (1–4) for each word.
+// ============================================================================
+const PVT_ANSWER_KEY = {
+  "Apparel": 4, "Ascend": 2, "Dejected": 4, "Depleted": 4,
+  "Hazardous": 3, "Incandescent": 4, "Lugubrious": 2, "Peruse": 2,
+  "Sedan": 1, "Submerge": 3, "Torrent": 3, "Weary": 2
 };
 
 // UI-only state (not persisted): which word tile is currently expanded per section
@@ -566,6 +575,7 @@ function renderPostMeaning(){
             r.onchange = () => {
               const idx = current.postMeaning.findIndex(e => e.word === w);
               current.postMeaning[idx].pvtChoice = n;
+              current.postMeaning[idx].pvtAccuracy = (n === PVT_ANSWER_KEY[w]) ? 1 : 0;
               saveCurrent(); refresh();
             };
             l.appendChild(r);
@@ -574,29 +584,13 @@ function renderPostMeaning(){
           });
           wrap.appendChild(choiceWrap);
 
-          const accLabel = document.createElement("div");
-          accLabel.className = "pvt-subgroup-label";
-          accLabel.textContent = "Accuracy";
-          wrap.appendChild(accLabel);
-
-          const accWrap = document.createElement("div");
-          accWrap.className = "pvt-choices";
-          [{v:1,label:"1 — Correct"},{v:0,label:"0 — Incorrect"}].forEach(opt => {
-            const l = document.createElement("label");
-            const r = document.createElement("input");
-            r.type = "radio";
-            r.name = `pvt_accuracy_${w}`;
-            r.checked = ent.pvtAccuracy === opt.v;
-            r.onchange = () => {
-              const idx = current.postMeaning.findIndex(e => e.word === w);
-              current.postMeaning[idx].pvtAccuracy = opt.v;
-              saveCurrent(); refresh();
-            };
-            l.appendChild(r);
-            l.appendChild(document.createTextNode(opt.label));
-            accWrap.appendChild(l);
-          });
-          wrap.appendChild(accWrap);
+          if(ent.pvtChoice){
+            const accResult = document.createElement("div");
+            accResult.className = "pvt-subgroup-label";
+            const correct = ent.pvtAccuracy === 1;
+            accResult.innerHTML = `Accuracy: <span style="color:${correct ? 'var(--good)' : 'var(--bad)'}; font-weight:700;">${ent.pvtAccuracy} (${correct ? "Correct" : "Incorrect"})</span>`;
+            wrap.appendChild(accResult);
+          }
         }
 
         return wrap;
